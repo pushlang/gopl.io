@@ -10,15 +10,20 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
 	var s, sep string
-	for i := 1; i < len(os.Args); i++ {
+	i := 1
+	for ; i < len(os.Args); i++ {
 		s += sep + os.Args[i]
 		sep = " "
 	}
-	fmt.Println(s)
+	
+	fmt.Printf("%d, %s", i, s)
+	fmt.Println(strings.Join(os.Args[1:], " "))
+	fmt.Printf("\n%s", os.Args[1:])
 }
 
 //!-

@@ -23,13 +23,17 @@ func nonempty(strings []string) []string {
 	return strings[:i]
 }
 
+//func(d []string) {data=d}(nonempty2(data))
 //!-nonempty
 
 func main() {
 	//!+main
-	data := []string{"one", "", "three"}
-	fmt.Printf("%q\n", nonempty(data)) // `["one" "three"]`
-	fmt.Printf("%q\n", data)           // `["one" "three" "three"]`
+	//data := []string{"one", "", "three"}
+	//fmt.Printf("%q\n", func(d []string) []string { data = d; return data }(nonempty2(data))) // `["one" "three"]`
+	//fmt.Printf("%q\n", data)                                                                 // `["one" "three" "three"]`
+	data2 := []string{"a", "b", "b", "c", "c", "c"}
+	fmt.Printf("%q\n", dup(data2))
+
 	//!-main
 }
 
@@ -42,6 +46,25 @@ func nonempty2(strings []string) []string {
 		}
 	}
 	return out
+}
+
+func dup(strings []string) []string {
+	i := 1
+	l := 0
+
+	for j := 0; j < len(strings)-1-l; j++ {
+		for k := j + 1; k < len(strings)-l; k++ {
+			if strings[j] != strings[k] {
+				strings[i] = strings[k]
+				i++
+				break
+			}
+			l++
+		}
+		fmt.Println(i, j, l)
+	}
+
+	return strings[:i]
 }
 
 //!-alt

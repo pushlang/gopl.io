@@ -20,10 +20,15 @@ func main() {
 		fmt.Fprintf(os.Stderr, "findlinks1: %v\n", err)
 		os.Exit(1)
 	}
+
+
+
 	for _, link := range visit(nil, doc) {
 		fmt.Println(link)
 	}
+
 }
+// memviz.Map(os.Stdout, doc)
 
 //!-main
 

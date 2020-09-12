@@ -1,0 +1,22 @@
+digraph structs {
+  node [shape=Mrecord];
+  4 [label="<name> tree |{<f0> value | 7} |{<f1> left | *main.tree(nil)} |{<f2> right | *main.tree(nil)}  "];
+  3 [label="<name> tree |{<f0> value | 4} |{<f1> left | *main.tree(nil)} |<f2> right "];
+  3:f2 -> 4:name;
+  5 [label="<name> tree |{<f0> value | 9} |{<f1> left | *main.tree(nil)} |{<f2> right | *main.tree(nil)}  "];
+  2 [label="<name> tree |{<f0> value | 8} |<f1> left|<f2> right "];
+  2:f1 -> 3:name;
+  2:f2 -> 5:name;
+  9 [label="<name> tree |{<f0> value | 13} |{<f1> left | *main.tree(nil)} |{<f2> right | *main.tree(nil)}  "];
+  8 [label="<name> tree |{<f0> value | 14} |<f1> left|{<f2> right | *main.tree(nil)}  "];
+  8:f1 -> 9:name;
+  7 [label="<name> tree |{<f0> value | 12} |{<f1> left | *main.tree(nil)} |<f2> right "];
+  7:f2 -> 8:name;
+  10 [label="<name> tree |{<f0> value | 16} |{<f1> left | *main.tree(nil)} |{<f2> right | *main.tree(nil)}  "];
+  6 [label="<name> tree |{<f0> value | 15} |<f1> left|<f2> right "];
+  6:f1 -> 7:name;
+  6:f2 -> 10:name;
+  1 [label="<name> tree |{<f0> value | 10} |<f1> left|<f2> right "];
+  1:f1 -> 2:name;
+  1:f2 -> 6:name;
+}

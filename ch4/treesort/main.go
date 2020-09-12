@@ -4,7 +4,14 @@
 // See page 101.
 
 // Package treesort provides insertion sort using an unbalanced binary tree.
-package treesort
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/bradleyjkemp/memviz"
+)
 
 //!+
 type tree struct {
@@ -13,12 +20,14 @@ type tree struct {
 }
 
 // Sort sorts values in place.
-func Sort(values []int) {
+func Sort(values []int) *tree {
 	var root *tree
 	for _, v := range values {
 		root = add(root, v)
 	}
-	appendValues(values[:0], root)
+
+	fmt.Println(appendValues(values[:0], root))
+	return root
 }
 
 // appendValues appends the elements of t to values in order
@@ -45,6 +54,12 @@ func add(t *tree, value int) *tree {
 		t.right = add(t.right, value)
 	}
 	return t
+}
+
+func main() {
+	values := []int{10, 15, 8, 12, 4, 9, 7, 16, 14, 13}
+	tree := Sort(values)
+	memviz.Map(os.Stdout, tree)
 }
 
 //!-

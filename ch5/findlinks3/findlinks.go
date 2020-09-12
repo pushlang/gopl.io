@@ -20,7 +20,7 @@ import (
 // f is called at most once for each item.
 func breadthFirst(f func(item string) []string, worklist []string) {
 	seen := make(map[string]bool)
-	for len(worklist) > 0 {
+	for i := 0; len(worklist) > 0 && i != 3; i++ {
 		items := worklist
 		worklist = nil
 		for _, item := range items {

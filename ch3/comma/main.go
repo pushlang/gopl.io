@@ -17,13 +17,15 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 )
 
 func main() {
+	os.Args = []string{"", "-10,00", "-100,00", "-1000,00", "-10000,00", "-100000,00", "-1000000,00", "-10000000,00", "-100000000,00"}
 	for i := 1; i < len(os.Args); i++ {
-		fmt.Printf("  %s\n", comma(os.Args[i]))
+		fmt.Printf("%s\n", comma2(os.Args[i]))
 	}
 }
 
@@ -34,7 +36,35 @@ func comma(s string) string {
 	if n <= 3 {
 		return s
 	}
-	return comma(s[:n-3]) + "," + s[n-3:]
+	return comma(s[:n-3]) + "." + s[n-3:]
+}
+
+func comma2(s string) string {
+	var buf bytes.Buffer
+
+	trail := ""
+	sign := ""
+
+	if s[0] == '-' {
+		sign = "-"
+		s = s[1:]
+	}
+
+	commaIndex := bytes.LastIndex([]byte(s), []byte{','})
+	if commaIndex != -1 {
+		trail = s[commaIndex:]
+		s = s[:commaIndex]
+	}
+
+	for i, l := 0, len(s)-1; l >= 0; l, i = l-1, i+1 {
+		buf.WriteByte(s[i])
+
+		if ((l)%3) == 0 && l > 2 {
+			buf.WriteByte('.')
+		}
+	}
+
+	return sign + buf.String() + trail
 }
 
 //!-

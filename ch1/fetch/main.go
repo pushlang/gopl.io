@@ -16,7 +16,8 @@ import (
 
 func main() {
 	for _, url := range os.Args[1:] {
-		resp, err := http.Get(url)
+		resp, err := http.Get(url) //type Response struct { Body: io.ReadCloser}
+
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "fetch: %v\n", err)
 			os.Exit(1)

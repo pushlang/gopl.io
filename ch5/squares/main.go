@@ -25,6 +25,7 @@ func main() {
 	fmt.Println(f()) // "4"
 	fmt.Println(f()) // "9"
 	fmt.Println(f()) // "16"
+	fmt.Println(f()) // "16"
 }
 
 //!-

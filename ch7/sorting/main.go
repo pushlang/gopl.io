@@ -103,6 +103,32 @@ func main() {
 	printTracks(tracks)
 }
 
+//!+customcode
+type customSort struct {
+	t    []*Track
+	less func(x, y *Track) bool
+}
+
+func (x customSort) Len() int           { return len(x.t) }
+func (x customSort) Less(i, j int) bool { return x.less(x.t[i], x.t[j]) }
+func (x customSort) Swap(i, j int)      { x.t[i], x.t[j] = x.t[j], x.t[i] }
+
+//!-customcode
+
+func init() {
+	//!+ints
+	values := []int{3, 1, 4, 1}
+	fmt.Println(sort.IntsAreSorted(values)) // "false"
+	sort.Ints(values)
+	fmt.Println(values)                     // "[1 1 3 4]"
+	fmt.Println(sort.IntsAreSorted(values)) // "true"
+	sort.Sort(sort.Reverse(sort.IntSlice(values)))
+
+	fmt.Println(values)                     // "[4 3 1 1]"
+	fmt.Println(sort.IntsAreSorted(values)) // "false"
+	//!-ints
+}
+
 /*
 //!+artistoutput
 Title       Artist          Album              Year  Length
@@ -140,28 +166,3 @@ Go Ahead    Alicia Keys     As I Am            2007  4m36s
 Ready 2 Go  Martin Solveig  Smash              2011  4m24s
 //!-customout
 */
-
-//!+customcode
-type customSort struct {
-	t    []*Track
-	less func(x, y *Track) bool
-}
-
-func (x customSort) Len() int           { return len(x.t) }
-func (x customSort) Less(i, j int) bool { return x.less(x.t[i], x.t[j]) }
-func (x customSort) Swap(i, j int)      { x.t[i], x.t[j] = x.t[j], x.t[i] }
-
-//!-customcode
-
-func init() {
-	//!+ints
-	values := []int{3, 1, 4, 1}
-	fmt.Println(sort.IntsAreSorted(values)) // "false"
-	sort.Ints(values)
-	fmt.Println(values)                     // "[1 1 3 4]"
-	fmt.Println(sort.IntsAreSorted(values)) // "true"
-	sort.Sort(sort.Reverse(sort.IntSlice(values)))
-	fmt.Println(values)                     // "[4 3 1 1]"
-	fmt.Println(sort.IntsAreSorted(values)) // "false"
-	//!-ints
-}

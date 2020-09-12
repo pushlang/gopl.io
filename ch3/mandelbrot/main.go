@@ -29,6 +29,7 @@ func main() {
 			z := complex(x, y)
 			// Image point (px, py) represents complex value z.
 			img.Set(px, py, mandelbrot(z))
+			//img.Set(px, py, newton(z))
 		}
 	}
 	png.Encode(os.Stdout, img) // NOTE: ignoring errors

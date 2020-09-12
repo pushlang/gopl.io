@@ -17,16 +17,29 @@ import (
 
 //!+
 func main() {
+
 	result, err := github.SearchIssues(os.Args[1:])
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("%d issues:\n", result.TotalCount)
-	for _, item := range result.Items {
-		fmt.Printf("#%-5d %9.9s %.55s\n",
+
+	fmt.Println(formatResult(result))
+
+}
+
+func formatResult(r *github.IssuesSearchResult) string {
+	var result string
+	for _, item := range r.Items {
+		result += fmt.Sprintf("#%-5d %9.9s %.55s\n",
 			item.Number, item.User.Login, item.Title)
 	}
+	return result
 }
+
+// func byTime(ti, t time.Time) bool {
+// 	return false
+// }
 
 //!-
 

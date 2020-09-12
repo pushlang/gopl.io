@@ -19,9 +19,9 @@ package bzip
 int bz2compress(bz_stream *s, int action,
                 char *in, unsigned *inlen, char *out, unsigned *outlen);
 */
-import "C"
 
 import (
+	"C"
 	"io"
 	"unsafe"
 )

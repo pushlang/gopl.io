@@ -13,4 +13,13 @@ func CToF(c Celsius) Fahrenheit { return Fahrenheit(c*9/5 + 32) }
 // FToC converts a Fahrenheit temperature to Celsius.
 func FToC(f Fahrenheit) Celsius { return Celsius((f - 32) * 5 / 9) }
 
+func KToC(k Kelvine) Celsius { return Celsius(k) + AbsoluteZeroC }
+
+func CToK(c Celsius) Kelvine { return Kelvine(c - AbsoluteZeroC) }
+
+func KToF(k Kelvine) Fahrenheit { return CToF(KToC(k)) }
+
+// FToC converts a Fahrenheit temperature to Celsius.
+func FToK(f Fahrenheit) Kelvine { return CToK(FToC(f)) }
+
 //!-
