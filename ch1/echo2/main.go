@@ -5,57 +5,20 @@
 //!+
 
 // Echo2 prints its command-line arguments.
-//package main
 package main
 
 import (
-	"fmt"
-	"strings"
-	"time"
+	"os"
 )
 
 func main() {
-	//s := []string(os.Args)
-
-	s := []string{"a", "b", "c"}
-
-	fmt.Println(Test1(s))
-	fmt.Println(Test2(s))
-}
-
-func Test1(s []string) string {
-	startTime := time.Now()
-	ss, sep := "", ""
-	for i := 0; i < 1000000; i++ {
-		ss=""
-		for _, arg := range s[1:] {
-			//fmt.Printf("%d: %s\n", i, arg)
-			ss += sep + arg
-			sep = " "
-		}
+	s, sep := "", ""
+	for _, arg := range os.Args[1:] {
+		// fmt.Println(i, arg)
+		s += sep + arg
+		sep = " "
 	}
-
-	endTime := time.Now()
-	diff := endTime.Sub(startTime)
-	fmt.Println("total time taken ", diff.Seconds(), "seconds")
-
-	return ss
-}
-
-func Test2(s []string) string {
-	startTime := time.Now()
-
-	var ss string
-
-	for i := 0; i < 1000000; i++ {
-		ss = strings.Join(s[1:], " ")
-	}
-
-	endTime := time.Now()
-	diff := endTime.Sub(startTime)
-	fmt.Println("total time taken ", diff.Seconds(), "seconds")
-
-	return ss
+	//fmt.Println(s)
 }
 
 //!-

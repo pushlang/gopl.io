@@ -8,23 +8,23 @@ package main
 
 import (
 	"fmt"
-	"net"
+	. "net"
 )
 
 //!+
-func isUp(v net.Flags) bool     { return v&net.FlagUp == net.FlagUp }
-func turnDown(v *net.Flags)     { *v &^= net.FlagUp }
-func setBroadcast(v *net.Flags) { *v |= net.FlagBroadcast }
-func isCast(v net.Flags) bool   { return v&(net.FlagBroadcast|net.FlagMulticast) != 0 }
+func IsUp(v Flags) bool     { return v&FlagUp == FlagUp }
+func TurnDown(v *Flags)     { *v &^= FlagUp }
+func SetBroadcast(v *Flags) { *v |= FlagBroadcast }
+func IsCast(v Flags) bool   { return v&(FlagBroadcast|FlagMulticast) != 0 }
 
 func main() {
-	var v net.Flags = net.FlagMulticast | net.FlagUp
-	fmt.Printf("%b %t\n", v, isUp(v)) // "10001 true"
-	turnDown(&v)
-	fmt.Printf("%b %t\n", v, isUp(v)) // "10000 false"
-	setBroadcast(&v)
-	fmt.Printf("%b %t\n", v, isUp(v))   // "10010 false"
-	fmt.Printf("%b %t\n", v, isCast(v)) // "10010 true"
+	var v Flags = FlagMulticast | FlagUp
+	fmt.Printf("%b %t\n", v, IsUp(v)) // "10001 true"
+	TurnDown(&v)
+	fmt.Printf("%b %t\n", v, IsUp(v)) // "10000 false"
+	SetBroadcast(&v)
+	fmt.Printf("%b %t\n", v, IsUp(v))   // "10010 false"
+	fmt.Printf("%b %t\n", v, IsCast(v)) // "10010 true"
 }
 
 //!-
