@@ -33,8 +33,8 @@ func handleConn(c *net.TCPConn) {
 	
 	start := make(chan struct{})
 	for input.Scan(){
-		start<-struct{}{}
                 wg.Add(1)
+		start<-struct{}{}
 		go echo(c, 1*time.Second, input.Text(), &wg)
 	}
 	
