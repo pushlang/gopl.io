@@ -32,19 +32,18 @@ func handleConn(c *net.TCPConn) {
 	var wg sync.WaitGroup
 	
 	start := make(chan struct{})
-	for input.Scan(){
-                wg.Add(1)
-		start<-struct{}{}
-		go echo(c, 1*time.Second, input.Text(), &wg)
-	}
-	
-
 	go func() {
 		<-start
 		wg.Wait()
 		c.CloseRead()
 		fmt.Println("Disconnected!")
 	}()
+
+	for input.Scan(){
+                wg.Add(1)
+		start<-struct{}{}
+		go echo(c, 1*time.Second, input.Text(), &wg)
+	}
 
 	// NOTE: ignoring potential errors from input.Err()
 	c.Close()
