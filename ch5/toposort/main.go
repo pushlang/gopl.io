@@ -14,8 +14,8 @@ import (
 //!+table
 // prereqs maps computer science courses to their prerequisites.
 var prereqs = map[string][]string{
-	"algorithms": {"data structures"},
 	"calculus":   {"linear algebra"},
+	"algorithms": {"data structures"},
 
 	"compilers": {
 		"data structures",
