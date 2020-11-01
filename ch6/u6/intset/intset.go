@@ -1,3 +1,4 @@
+//rm u6; goimports -v -w *.go; gofmt -w *.go; go build; ./u6
 // Package intset provides a set of integers based on a bit vector.
 package intset
 
@@ -63,7 +64,7 @@ func (s *IntSet) IntersectionWith(t *IntSet) {
 func (s *IntSet) DifferenceWith(t *IntSet) {
 	s.With(t, func(i int, tword uint){
 		s.words[i] &^= tword
-	})uint64
+	})
 }
 
 func (s *IntSet) SymmDifferenceWith(t *IntSet) {
@@ -90,7 +91,7 @@ func (s *IntSet) AddAll(values ...int) {
 
 func (s *IntSet) Copy() *IntSet {
 	n := new(IntSet)
-	s.iterIntSet(func(p int, v int) (ok bool) {
+	s.iterate(func(p int, v int) (ok bool) {
 		n.Add(v)
 		return
 	})
@@ -98,7 +99,7 @@ func (s *IntSet) Copy() *IntSet {
 }
 
 func (s *IntSet) Len() (l int) {
-	s.iterIntSet(func(p int, v int) (ok bool) {
+	s.iterate(func(p int, v int) (ok bool) {
 		l = p
 		return
 	})
@@ -106,7 +107,7 @@ func (s *IntSet) Len() (l int) {
 }
 
 func (s *IntSet) GetValue(position int) (value int) {
-	s.iterIntSet(func(p int, v int) (ok bool) {
+	s.iterate(func(p int, v int) (ok bool) {
 		if p == position {
 			value = v
 			ok = true
@@ -117,7 +118,7 @@ func (s *IntSet) GetValue(position int) (value int) {
 }
 
 func (s *IntSet) Elems() (elems []int) {
-	s.iterIntSet(func(p int, v int) (ok bool) {
+	s.iterate(func(p int, v int) (ok bool) {
 		elems = append(elems, v)
 		return
 	})
@@ -125,7 +126,7 @@ func (s *IntSet) Elems() (elems []int) {
 }
 
 func (s *IntSet) GetPosition(value int) (position int) {
-	s.iterIntSet(func(p int, v int) (ok bool) {
+	s.iterate(func(p int, v int) (ok bool) {
 		if value == v {
 			position = p
 			ok = true
@@ -143,14 +144,14 @@ func (s *IntSet) Remove(value int) {
 }
 
 func (s *IntSet) Clear() (value int) {
-	s.iterIntSet(func(p int, v int) (ok bool) {
+	s.iterate(func(p int, v int) (ok bool) {
 		s.Remove(v)
 		return
 	})
 	return
 }
 
-func (s *IntSet) iterIntSet(do func(int, int) bool) {
+func (s *IntSet) iterate(do func(int, int) bool) {
 	counter := 0
 	for i, word := range s.words {
 		if word == 0 {
@@ -171,7 +172,7 @@ func (s *IntSet) String() string {
 	var buf bytes.Buffer
 	buf.WriteByte('{')
 
-	s.iterIntSet(func(p int, v int) (ok bool) {
+	s.iterate(func(p int, v int) (ok bool) {
 		if buf.Len() > len("{") {
 			buf.WriteByte(' ')
 		}
