@@ -18,29 +18,19 @@ import (
 
 func main() {
 	counts := make(map[string]int)
-	files := make(map[string]string)
-
-	args := os.Args[1:]
-	args = []string{"a", "b"}
-
-	for _, filename := range args {
+	for _, filename := range os.Args[1:] {
 		data, err := ioutil.ReadFile(filename)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "dup3: %v\n", err)
 			continue
 		}
-
-		for _, line := range strings.Split(string(data), "\r\n") {
+		for _, line := range strings.Split(string(data), "\n") {
 			counts[line]++
-				if _, ok := files[line]; !ok || (ok && (files[line] != filename)) {
-				files[line] += filename
-			}
 		}
-
 	}
 	for line, n := range counts {
-		if n > 0 {
-			fmt.Printf("%d\t%s\t%s\n", n, line, files[line])
+		if n > 1 {
+			fmt.Printf("%d\t%s\n", n, line)
 		}
 	}
 }

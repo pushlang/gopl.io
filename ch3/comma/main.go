@@ -23,20 +23,46 @@ import (
 )
 
 func main() {
-	os.Args = []string{"", "-10,00", "-100,00", "-1000,00", "-10000,00", "-100000,00", "-1000000,00", "-10000000,00", "-100000000,00"}
+	os.Args = []string{"", "10", "100", "1000", "10000", "100000", "1000000", "10000000", "100000000"}
+	//os.Args = []string{"", "-10,00", "-100,00", "-1000,00", "-10000,00", "-100000,00", "-1000000,00", "-10000000,00", "-100000000,00"}
+
 	for i := 1; i < len(os.Args); i++ {
-		fmt.Printf("%s\n", comma2(os.Args[i]))
+		fmt.Printf("  %s\n", comma(os.Args[i]))
 	}
 }
 
 //!+
 // comma inserts commas in a non-negative decimal integer string.
+func commaRec(s string) string {
+	n := len(s)
+	if n <= 3 {
+		return s
+	}
+	return comma(s[:n-3]) + "," + s[n-3:]
+}
+
 func comma(s string) string {
 	n := len(s)
 	if n <= 3 {
 		return s
 	}
-	return comma(s[:n-3]) + "." + s[n-3:]
+
+	fp := n % 3
+
+	if fp == 0 {
+		fp = 3
+	}
+
+	var buf bytes.Buffer
+
+	buf.WriteString(s[:fp])
+
+	for i := fp; i < n; i += 3 {
+		buf.WriteString(".")
+		buf.WriteString(s[i : i+3])
+	}
+
+	return buf.String()
 }
 
 func comma2(s string) string {
@@ -65,6 +91,61 @@ func comma2(s string) string {
 	}
 
 	return sign + buf.String() + trail
+}
+
+func ana(s1, s2 string) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+
+	for _, v1 := range s1 {
+		i1, i2 := 0, 0
+		for _, v12 := range s1 {
+			if v1 == v12 {
+				i1++
+			}
+		}
+		for _, v2 := range s2 {
+			if v1 == v2 {
+				i2++
+			}
+		}
+
+		if i1 != i2 {
+			return false
+		}
+	}
+
+	return true
+}
+
+func ana2(s1, s2 string) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+
+	v12 := make(map[rune]int)
+	v22 := make(map[rune]int)
+
+	for _, v1 := range s1 {
+		v12[v1]++
+	}
+
+	for _, v2 := range s2 {
+		v22[v2]++
+	}
+
+	if len(v12) != len(v22) {
+		return false
+	}
+
+	for _, v1 := range s1 {
+		if v12[v1] != v22[v1] {
+			return false
+		}
+	}
+
+	return true
 }
 
 //!-

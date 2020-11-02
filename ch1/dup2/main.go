@@ -14,12 +14,18 @@ import (
 	"os"
 )
 
-func main() {
-	counts := make(map[string]int)
-	files := os.Args[1:]
-	//files = []string{"a", "b", "c"}
+type fss struct {
+	co int
+	ff map[string]bool
+}
 
+func main() {
+	//fs := make(map[string]map[string]bool)
+	//counts := make(map[string]int)
+	counts := make(map[string]*fss)
+	files := os.Args[1:]
 	if len(files) == 0 {
+		//countLines2(os.Stdin, counts, nil)
 		countLines(os.Stdin, counts)
 	} else {
 		for _, arg := range files {
@@ -28,33 +34,61 @@ func main() {
 				fmt.Fprintf(os.Stderr, "dup2: %v\n", err)
 				continue
 			}
+			//countLines2(f, counts, fs)
 			countLines(f, counts)
 			f.Close()
 		}
 	}
-	cc := 0
 	for line, n := range counts {
-		if n > 1 {
-			fmt.Printf("%d\t%s\n", n, line)
-			cc += n
+		// if n > 1 {
+		// 	v := fs[line]
+		// 	var res []string
+		// 	for key := range v {
+		// 		res = append(res, key)
+		// 	}
+		// 	fmt.Printf("%d\t%s: %s\n", n, line, res)
+		// }
+		if n.co > 1 {
+			var res []string
+			for key := range n.ff {
+				res = append(res, key)
+			}
+			fmt.Printf("%d\t%s:%s\n", n.co, line, res)
 		}
 	}
-	fmt.Printf("\nCount:%d", cc)
 }
 
-//f io.Reader //v, ok := f.(*os.File)
-func countLines(f *os.File, counts map[string]int) {
-
+func countLines(f *os.File, counts map[string]*fss) {
 	input := bufio.NewScanner(f)
 	for input.Scan() {
-		//fmt.Println(input.Err())
-		if (f.Name() == "/dev/stdin") && (input.Text() == "") {
-			
+		if input.Text() == "" {
 			break
 		}
-		counts[input.Text()]++
+
+		if counts[input.Text()] == nil {
+			counts[input.Text()] = &fss{ff: map[string]bool{f.Name(): true}}
+		} else {
+			counts[input.Text()].ff[f.Name()] = true
+		}
+		counts[input.Text()].co++
 	}
-	// NOTE: ignoring potential errors from input.Err()
 }
 
-//!-
+func countLines2(f *os.File, counts map[string]int, fs map[string]map[string]bool) {
+	input := bufio.NewScanner(f)
+	for input.Scan() {
+		if input.Text() == "" {
+			break
+		}
+
+		counts[input.Text()]++
+		if fs != nil {
+			if fs[input.Text()] == nil {
+				ff := make(map[string]bool)
+				fs[input.Text()] = ff
+			}
+			v := fs[input.Text()]
+			v[f.Name()] = true
+		}
+	}
+}

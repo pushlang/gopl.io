@@ -18,20 +18,6 @@ import (
 	"golang.org/x/net/html"
 )
 
-//!+
-func main() {
-	for _, url := range os.Args[1:] {
-		links, err := findLinks(url)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "findlinks2: %v\n", err)
-			continue
-		}
-		for _, link := range links {
-			fmt.Println(link)
-		}
-	}
-}
-
 // visit appends to links each link found in n, and returns the result.
 func visit(links []string, n *html.Node) []string {
 	if n.Type == html.ElementNode && n.Data == "a" {
@@ -45,6 +31,20 @@ func visit(links []string, n *html.Node) []string {
 		links = visit(links, c)
 	}
 	return links
+}
+
+//!+
+func main() {
+	for _, url := range os.Args[1:] {
+		links, err := findLinks(url)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "findlinks2: %v\n", err)
+			continue
+		}
+		for _, link := range links {
+			fmt.Println(link)
+		}
+	}
 }
 
 // findLinks performs an HTTP GET request for url, parses the
