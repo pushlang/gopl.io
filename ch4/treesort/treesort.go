@@ -7,23 +7,27 @@
 package treesort
 
 //!+
-type tree struct {
+type Tree struct {
 	value       int
-	left, right *tree
+	left, right *Tree
 }
 
+func (t *Tree) Left() *Tree  { return t.left }
+func (t *Tree) Right() *Tree { return t.right }
+func (t *Tree) Value() int   { return t.value }
+
 // Sort sorts values in place.
-func Sort(values []int) {
-	var root *tree
+func Sort(values []int) []int {
+	var root *Tree
 	for _, v := range values {
 		root = add(root, v)
 	}
-	appendValues(values[:0], root)
+	return appendValues(values[:0], root)
 }
 
 // appendValues appends the elements of t to values in order
 // and returns the resulting slice.
-func appendValues(values []int, t *tree) []int {
+func appendValues(values []int, t *Tree) []int {
 	if t != nil {
 		values = appendValues(values, t.left)
 		values = append(values, t.value)
@@ -32,12 +36,9 @@ func appendValues(values []int, t *tree) []int {
 	return values
 }
 
-func add(t *tree, value int) *tree {
+func add(t *Tree, value int) *Tree {
 	if t == nil {
-		// Equivalent to return &tree{value: value}.
-		t = new(tree)
-		t.value = value
-		return t
+		return &Tree{value: value}
 	}
 	if value < t.value {
 		t.left = add(t.left, value)

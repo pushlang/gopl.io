@@ -4,20 +4,25 @@
 // See page 123.
 
 // Outline prints the outline of an HTML document tree.
-package main
+package outline
 
 import (
 	"fmt"
+	"io"
+	"log"
 	"os"
 
 	"golang.org/x/net/html"
 )
 
 //!+
-func main() {
-	doc, err := html.Parse(os.Stdin)
+func Run(r io.Reader) {
+	doc, err := html.Parse(r)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "outline: %v\n", err)
+		_, err := fmt.Fprintf(os.Stderr, "outline: %v\n", err)
+		if err != nil {
+			log.Println(err)
+		}
 		os.Exit(1)
 	}
 	outline(nil, doc)
