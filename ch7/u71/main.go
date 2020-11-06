@@ -1,3 +1,4 @@
+// 7.1, 7.2
 //rm u71; goimports -v -w *.go; gofmt -w *.go; go build; ./u71
 //del u71.exe & goimports -v -w main.go & gofmt -w main.go & go build & u71.exe
 

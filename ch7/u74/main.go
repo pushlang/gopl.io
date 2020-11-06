@@ -8,8 +8,6 @@ import (
 	"io"
 
 	"gopl.io/ch5/outline"
-
-	_ "gopl.io/ch5/outline"
 )
 
 type StrRead struct {
