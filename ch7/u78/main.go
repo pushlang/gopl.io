@@ -12,11 +12,13 @@ func main() {
 		{"Go Ahead", "Alicia Keys", "As I Am", "2007", "4m36s"},
 		{"Ready 2 Go", "Martin Solveig", "Smash", "2011", "4m24s"},
 		{"Go", "Def Leppard", "Def Leppard", "2008", "5m03s"},
+		{"Go", "Def Leppard", "Def Leppard", "2012", "5m03s"},
+		{"Go", "Def Leppard", "Leppard Def", "2011", "5m03s"},
 	}
 
 	tracks := new(s.TrackList)
 
 	tracks.Add(list)
 
-	tracks.SortMultiple([]string{"title", "year"}) // artist, year, custom
+	tracks.Sort([]string{"title", "album", "year"}) // artist, year, custom
 }

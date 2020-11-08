@@ -14,6 +14,8 @@ type Track struct {
 	Length time.Duration
 }
 
+var fields = map[string]bool{"title": true, "artist": true, "album": true, "year": true, "length": true}
+
 type TrackList []*Track
 
 func (t *TrackList) Add(tracks [][]string) {
@@ -36,35 +38,16 @@ func (t *TrackList) Add(tracks [][]string) {
 	}
 }
 
-func (t *TrackList) Sort(sortby string) {
-	var less func(x, y *Track, sortby []string) bool
-	less = sortByField
-
-	switch sortby {
-	case "custom":
-	case "artist":
-	case "year":
-	default:
-		panic(sortby)
-	}
-	sort.Sort(custom{t, less, []string{sortby}})
-	printTracks(t)
-}
-
-func (t *TrackList) SortMultiple(sortby []string) {
+func (t *TrackList) Sort(sortby []string) {
 	var less func(x, y *Track, sortby []string) bool
 	less = sortByMultiple
-	
+
 	sb := make([]string, 0)
 	for _, by := range sortby {
-		switch by {
-		case "title":
-			sb = append(sb, "title")
-		case "year":
-			sb = append(sb, "year")
-		default:
+		if !fields[by] {
 			panic(by)
 		}
+		sb = append(sb, by)
 	}
 	sort.Sort(custom{t, less, sb})
 	printTracks(t)
@@ -77,37 +60,23 @@ func sortByMultiple(x, y *Track, sortby []string) bool {
 			if x.Title != y.Title {
 				return x.Title < y.Title
 			}
+		case "artist":
+			if x.Year != y.Year {
+				return x.Year < y.Year
+			}
+		case "album":
+			if x.Album != y.Album {
+				return x.Album < y.Album
+			}
 		case "year":
 			if x.Year != y.Year {
 				return x.Year < y.Year
 			}
+		case "length":
+			if x.Length != y.Length {
+				return x.Length < y.Length
+			}
 		}
 	}
 	return false
-}
-
-func sortByCustom(x, y *Track, sortby []string) bool {
-	if x.Title != y.Title {
-		return x.Title < y.Title
-	}
-	if x.Year != y.Year {
-		return x.Year < y.Year
-	}
-	if x.Length != y.Length {
-		return x.Length < y.Length
-	}
-	return false
-}
-
-func sortByField(x, y *Track, sortby []string) bool {
-	switch sortby[0] {
-	case "artist":
-		return x.Artist < y.Artist
-	case "year":
-		return x.Year < y.Year
-	case "title":
-		return x.Title < y.Title
-	default:
-		panic(sortby[0])
-	}
 }
