@@ -1,0 +1,34 @@
+// 7.1, 7.2
+//rm u71; goimports -v -w *.go; gofmt -w *.go; go build; ./u71
+//del u71.exe & goimports -v -w main.go ./count/count.go & gofmt -w main.go ./count/count.go & go build & u71.exe
+
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+
+	"gopl.io/ch7/u71/count"
+)
+
+func main() {
+	//sw, c := CountingWriter(os.Stdout)
+	counter, _ := count.NewCounterAll()
+	countwr := count.NewCountWriter(counter, os.Stdout)
+
+	var text1 = `Hello my dear friends
+Well, here I am on record at last`
+	_, err := fmt.Fprintf(countwr, "text: %s\n", text1)
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(countwr.Value())
+
+	var text2 = `And it feels so wonderful to be here with you`
+	_, err = fmt.Fprintf(countwr, "text: %s\n", text2)
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(countwr.Value())
+}
