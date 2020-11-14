@@ -7,9 +7,57 @@ import (
 	"io"
 )
 
+type allCountWriters []*countWriter
+
+func (cws *allCountWriters) Write(p []byte) (int, error) {
+	(*cws)[0].w.Write(p)
+
+	n, err := 0, error(nil)
+
+	for _, cw := range *cws {
+		n, err = cw.Count(cw.r)
+	}
+
+	return n, err
+}
+
+func (cws *allCountWriters) Add(cw ...*countWriter) { *cws = append(*cws, cw...) }
+func (cws *allCountWriters) String() string {
+	var b bytes.Buffer
+	b.WriteByte('[')
+	l := len(*cws)
+	for i, cw := range *cws {
+		b.WriteString(cw.String())
+
+		if i < l-1 {
+			b.WriteByte(' ')
+		}
+	}
+	b.WriteByte(']')
+
+	return b.String()
+}
+
 type Counter interface {
+	Count(io.Reader) (int, error)
 	Increment()
-	Value() []int
+	Value() int
+	String() string
+}
+
+type byteCounter struct {
+	c int
+	s bufio.SplitFunc
+}
+
+type wordCounter struct {
+	c int
+	s bufio.SplitFunc
+}
+
+type lineCounter struct {
+	c int
+	s bufio.SplitFunc
 }
 
 type CountWriter interface {
@@ -17,128 +65,71 @@ type CountWriter interface {
 	Counter
 }
 
-type countwriter struct {
-	io.Writer
+type countWriter struct {
+	r io.Reader
+	w io.Writer
 	Counter
 }
 
-func (c *countwriter) Write(p []byte) (int, error) {
-	_, err := c.Writer.Write(p)
-	switch c.Counter.(type) {
-	case *byteCounter:
-		_, err = counting(c, p, bufio.ScanBytes)
-	case *wordCounter:
-		_, err = counting(c, p, bufio.ScanWords)
-	case *lineCounter:
-		_, err = counting(c, p, bufio.ScanLines)
-	case *allCounter:
-		_, err = counting(c, p, bufio.ScanBytes)
-		_, err = counting(c, p, bufio.ScanWords)
-		_, err = counting(c, p, bufio.ScanLines)
-	}
-	return len(p), err
+func (cw *countWriter) Write(p []byte) (int, error) {
+	cw.w.Write(p)
+	return cw.Counter.Count(cw.r)
+}
+func (c *byteCounter) Count(r io.Reader) (int, error) {
+	return count(c, r, c.s)
+}
+func (c *byteCounter) Increment()     { c.c++ }
+func (c *byteCounter) Value() int     { return int(c.c) }
+func (c *byteCounter) String() string { return fmt.Sprintf("bytes:%d", c.c) }
+
+func (c *wordCounter) Count(r io.Reader) (int, error) {
+	return count(c, r, c.s)
+}
+func (c *wordCounter) Increment()     { c.c++ }
+func (c *wordCounter) Value() int     { return int(c.c) }
+func (c *wordCounter) String() string { return fmt.Sprintf("words:%d", c.c) }
+
+func (c *lineCounter) Count(r io.Reader) (int, error) {
+	return count(c, r, c.s)
+}
+func (c *lineCounter) Increment()     { c.c++ }
+func (c *lineCounter) Value() int     { return int(c.c) }
+func (c *lineCounter) String() string { return fmt.Sprintf("lines:%d", c.c) }
+
+func count(c Counter, r io.Reader, s bufio.SplitFunc) (int, error) {
+	var done = make(chan struct{})
+
+	var scanner *bufio.Scanner
+	scanner = bufio.NewScanner(r)
+
+	scanner.Split(s)
+
+	go func() {
+		for scanner.Scan() {
+			c.Increment()
+		}
+		done <- struct{}{}
+	}()
+
+	<-done
+	return c.Value(), scanner.Err()
 }
 
-func NewCounterBytes() (Counter, *byteCounter) {
-	c := new(byteCounter)
-	return c, c
+func NewByteCounter() Counter {
+	return &byteCounter{0, bufio.ScanBytes}
 }
-func NewCounterWords() (Counter, *wordCounter) {
-	c := new(wordCounter)
-	return c, c
+func NewWordCounter() Counter {
+	return &wordCounter{0, bufio.ScanWords}
 }
-func NewCounterLines() (Counter, *lineCounter) {
-	c := new(lineCounter)
-	return c, c
-}
-func NewCounterAll() (Counter, *allCounter) {
-	a, b, c := byteCounter(0), wordCounter(0), lineCounter(0)
-	all := &allCounter{&a, &b, &c}
-	return all, all
+func NewLineCounter() Counter {
+	return &lineCounter{0, bufio.ScanLines}
 }
 
-func NewCountWriter(c Counter, w io.Writer) CountWriter {
-	return &countwriter{Counter: c, Writer: w}
+func NewCountWriter(r io.Reader, w io.Writer, c Counter) *countWriter {
+	return &countWriter{r, w, c}
 }
 
-//func CountingWriter(w io.Writer) (io.Writer, *countwrite) {
-//	sw := &countwrite{Writer: w}
-//	return sw, &(sw.countwrite)
-//}
-
-type allCounter struct {
-	byteCount *byteCounter
-	wordCount *wordCounter
-	lineCount *lineCounter
-}
-
-// func (c *allCounter) Write(p []byte) (int, error) {
-// //_, err := c.Writer.Write(p)
-// fmt.Println("allCounter", *c)
-// _, err := c.byteCount.Write(p)
-// _, err = c.wordCount.Write(p)
-// _, err = c.lineCount.Write(p)
-
-// return len(p), err
-// }
-func (c *allCounter) Increment() {
-	// switch c.Counter.(type) {
-	// case *byteCounter:
-	// c.byteCount.Increment()
-	// case *wordCounter:
-	// c.wordCount.Increment()
-	// case *lineCounter:
-	// c.lineCount.Increment()
-	// }
-}
-func (c *allCounter) Value() []int {
-	return []int{int(*c.byteCount), int(*c.wordCount), int(*c.lineCount)}
-}
-
-// func (c allCounter) String() string {
-// return fmt.Sprintf("[%v %v %v]", *(c.byteCount), *(c.wordCount), *(c.lineCount))
-// }
-
-type byteCounter int
-type wordCounter int
-type lineCounter int
-
-// func (c *byteCounter) Write(p []byte) (int, error) {
-// n, err := counting(c, p, bufio.ScanBytes)
-// fmt.Println("byteCounter", *c)
-// return n, err
-// }
-func (c *byteCounter) Increment() { *c++; fmt.Println(*c) }
-func (c *byteCounter) Value() []int {
-	return []int{int(*c)}
-}
-
-// func (c *wordCounter) Write(p []byte) (int, error) {
-// n, err := counting(c, p, bufio.ScanWords)
-// fmt.Println("wordCounter", *c)
-// return n, err
-// }
-func (c *wordCounter) Increment() { *c++; fmt.Println(*c) }
-func (c *wordCounter) Value() []int {
-	return []int{int(*c)}
-}
-
-// func (c *lineCounter) Write(p []byte) (int, error) {
-// n, err := counting(c, p, bufio.ScanLines)
-// fmt.Println("lineCounter", *c)
-// return n, err
-// }
-func (c *lineCounter) Increment() { *c++; fmt.Println(*c) }
-func (c *lineCounter) Value() []int {
-	return []int{int(*c)}
-}
-
-func counting(c Counter, p []byte, split func([]byte, bool) (int, []byte, error)) (int, error) {
-	scanner := bufio.NewScanner(bytes.NewReader(p))
-	scanner.Split(split)
-	for scanner.Scan() {
-		c.Increment()
-	}
-
-	return c.Value()[0], scanner.Err()
+func NewAllCountWriters() allCountWriters {
+	cw := make(allCountWriters, 0, 10)
+	return cw
 }
