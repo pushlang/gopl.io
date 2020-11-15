@@ -61,7 +61,7 @@ func sortByMultiple(x, y *Track, sortby []string) bool {
 				return x.Title < y.Title
 			}
 		case "artist":
-			if x.Year != y.Year {
+			if x.Artist != y.Artist {
 				return x.Year < y.Year
 			}
 		case "album":
