@@ -37,7 +37,6 @@ func (t *TrackList) Add(tracks [][]string) {
 		}
 	}
 }
-
 func (t *TrackList) Sort(sortby []string) {
 	var less func(x, y *Track, sortby []string) bool
 	less = sortByMultiple
@@ -52,7 +51,6 @@ func (t *TrackList) Sort(sortby []string) {
 	sort.Sort(custom{t, less, sb})
 	printTracks(t)
 }
-
 func sortByMultiple(x, y *Track, sortby []string) bool {
 	for _, by := range sortby {
 		switch by {
@@ -62,7 +60,7 @@ func sortByMultiple(x, y *Track, sortby []string) bool {
 			}
 		case "artist":
 			if x.Artist != y.Artist {
-				return x.Year < y.Year
+				return x.Artist < y.Artist
 			}
 		case "album":
 			if x.Album != y.Album {
@@ -79,4 +77,53 @@ func sortByMultiple(x, y *Track, sortby []string) bool {
 		}
 	}
 	return false
+}
+
+////////////////////////////////////////////
+type TrackListS struct {
+	List TrackList
+	//number int
+	Sortedby   []string
+	Fields     []string
+	FormValues []string
+}
+
+func (t *TrackListS) Add(tracks [][]string) {
+	for i, track := range tracks {
+		t.List = append(t.List, &Track{})
+		for j, field := range track {
+			switch j {
+			case 0:
+				t.List[i].Title = field
+			case 1:
+				t.List[i].Artist = field
+			case 2:
+				t.List[i].Album = field
+			case 3:
+				t.List[i].Year, _ = strconv.Atoi(field)
+			case 4:
+				t.List[i].Length = parseLength(field)
+			}
+		}
+	}
+}
+func (t *TrackListS) SortS(sortby []string) {
+	t.Fields = []string{"title", "artist", "album", "year", "length"}
+	for _, s := range sortby {
+		if !fields[s] {
+			panic(s)
+		}
+	}
+
+	t.FormValues = sortby
+
+	if len(sortby) == 3 {
+		t.FormValues = nil
+	}
+
+	t.Sortedby = sortby
+
+	sort.Sort(custom{&t.List, sortByMultiple, t.Sortedby})
+
+	//printTracks(&t.List)
 }

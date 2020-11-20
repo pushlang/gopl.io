@@ -8,29 +8,59 @@ import (
 	"net/http"
 )
 
-var tracklist *template.Template
-
-var tracks *s.TrackList
-
-func init() {
-	tracklist = template.Must(template.New("issuelist").Parse(`
+var tracklist = template.Must(template.New("tracklist").Parse(`
 <h1>Track List</h1>
 <table>
 <tr style='text-align: left'>
-  <th><a href='http://localhost:8000/sort?title=true'>Title</a></th>
-  <th><a href='http://localhost:8000/sort?artist=true'>Artist</a></th>
-  <th><a href='http://localhost:8000/sort?album=true'>Album</a></th>
-  <th><a href='http://localhost:8000/sort?year=true'>Year</a></th>
-  <th><a href='http://localhost:8000/sort?length=true'>Length</a></th>
+
+<th>
+	<a href='http://localhost:8000/sort?
+	{{range .FormValues}}
+		{{if ne . "title"}}
+			{{.}}=true&
+		{{end}}
+	{{end}}title=true'>Title</a>
+</th>
+<th>
+<a href='http://localhost:8000/sort?
+	{{range .FormValues}}
+		{{if ne . "artist"}}
+			{{.}}=true&
+		{{end}}
+	{{end}}artist=true'>Artist</a>
+</th>
+<th>
+	<a href='http://localhost:8000/sort?
+	{{range .FormValues}}
+		{{if ne . "album"}}
+			{{.}}=true&
+		{{end}}
+	{{end}}album=true'>Album</a>
+</th>
+<th>
+	<a href='http://localhost:8000/sort?
+	{{range .FormValues}}
+		{{if ne . "year"}}
+			{{.}}=true&
+		{{end}}
+	{{end}}year=true'>Year</a>
+</th>
+<th>
+<a href='http://localhost:8000/sort?
+	{{range .FormValues}}
+		{{if ne . "length"}}
+			{{.}}=true&
+		{{end}}
+	{{end}}length=true'>Length</a></th>
 </tr>
-{{range .}}
-<tr>
-  <td>{{.Title}}</td>
-  <td>{{.Artist}}</td>
-  <td>{{.Album}}</td>
-  <td>{{.Year}}</td>
-  <td>{{.Length}}</td>
-</tr>
+{{range .List}}
+	<tr>
+	  <td>{{.Title}}</td>
+	  <td>{{.Artist}}</td>
+	  <td>{{.Album}}</td>
+	  <td>{{.Year}}</td>
+	  <td>{{.Length}}</td>
+	</tr>
 {{end}}
 </table>
 `))
@@ -41,31 +71,29 @@ func init() {
 		{"Go Ahead", "Alicia Keys", "As I Am", "2007", "4m36s"},
 		{"Ready 2 Go", "Martin Solveig", "Smash", "2011", "4m24s"},
 		{"Go", "Def Leppard", "Def Leppard", "2008", "5m03s"},
-		{"Go", "Def Leppard", "Def Leppard", "2012", "5m03s"},
-		{"Go", "Def Leppard", "Leppard Def", "2011", "5m03s"},
+		{"Go", "Def Leppard", "Def Leppard", "2012", "5m01s"},
+		{"Go", "Def Leppard", "Leppard Def", "2011", "5m02s"},
 	}
 
-	tracks = new(s.TrackList)
-
-	tracks.Add(list)
-}
-
 func Handler(w http.ResponseWriter, r *http.Request) {
-
+	tracks := new(s.TrackListS)
+	tracks.Add(list)
+	
 	if err := r.ParseForm(); err != nil {
 		log.Print(err)
 	}
-
 	args := []string{}
 	for k, _ := range r.Form {
 		args = append(args, k)
 	}
 
-	tracks.Sort(args)
+	tracks.SortS(args)
 
 	if err := tracklist.Execute(w, tracks); err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Fprintf(w, args[0])
+	for _, a := range args {
+		fmt.Fprintf(w, a+" ")
+	}
 }
