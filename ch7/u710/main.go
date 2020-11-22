@@ -1,25 +1,31 @@
-// Copyright © 2016 Alan A. A. Donovan & Brian W. Kernighan.
-// License: https://creativecommons.org/licenses/by-nc-sa/4.0/
-
-// See page 187.
-
-// Sorting sorts a music playlist into a variety of orders.
+//rm u710; goimports -v -w main.go; gofmt -w main.go; go build; ./u710
 package main
 
 import (
 	"fmt"
-	"os"
 	"sort"
-	"text/tabwriter"
-	"time"
 )
 
 type word []byte
 
-func (p word) Len() int           { return len(p) }
-func (p word) Less(i, j int) bool { 
-	return !s.Less(i ,j) && !s.Less(j, i) 
+func (p word) Len() int {
+	return len(p)
 }
+
+func isSym(i int, p word) bool {
+	if i < len(p)/2 {
+		return p[i] == p[len(p)-i-1]
+	}
+	if i > len(p)/2 {
+		return p[i] == p[len(p)/2+(len(p)/2-i)]
+	}
+	return true
+}
+
+func (p word) Less(i, j int) bool {
+	return !isSym(i, p) || !isSym(j, p)
+}
+
 func (p word) Swap(i, j int) {}
 
 func IsPalindrom(s sort.Interface) bool {
@@ -28,6 +34,6 @@ func IsPalindrom(s sort.Interface) bool {
 }
 
 func main() {
-	w := word{"arosaupalanalapuazora"}
-	IsPalindrom(word)
+	w := word("arozaupalanalapuazora")
+	fmt.Printf("\nIs %s palindrom: %t\n", w, IsPalindrom(w))
 }
