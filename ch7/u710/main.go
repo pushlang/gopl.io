@@ -9,21 +9,19 @@ import (
 type word []byte
 
 func (p word) Len() int {
-	return len(p)
-}
-
-func isSym(i int, p word) bool {
-	if i < len(p)/2 {
-		return p[i] == p[len(p)-i-1]
-	}
-	if i > len(p)/2 {
-		return p[i] == p[len(p)/2+(len(p)/2-i)]
-	}
-	return true
+	return 2
 }
 
 func (p word) Less(i, j int) bool {
-	return !isSym(i, p) || !isSym(j, p)
+	hl := len(p) / 2
+	for i, v := range p {
+		if i != hl {
+			if v != p[2*hl-i] {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func (p word) Swap(i, j int) {}
@@ -35,5 +33,10 @@ func IsPalindrom(s sort.Interface) bool {
 
 func main() {
 	w := word("arozaupalanalapuazora")
+	w2 := word("abb")
+	w3 := word("aaa")
+
 	fmt.Printf("\nIs %s palindrom: %t\n", w, IsPalindrom(w))
+	fmt.Printf("\nIs %s palindrom: %t\n", w2, IsPalindrom(w2))
+	fmt.Printf("\nIs %s palindrom: %t\n", w3, IsPalindrom(w3))
 }
