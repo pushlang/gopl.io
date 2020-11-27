@@ -9,7 +9,7 @@ import (
 	"net/http"
 
 	h "gopl.io/ch7/u78/html"
-	// s "gopl.io/ch7/u78/sorting"
+	s "gopl.io/ch7/u78/sorting"
 )
 
 func main() {
@@ -17,21 +17,27 @@ func main() {
 	http.HandleFunc("/sort", h.Handler)
 	log.Fatal(http.ListenAndServe("localhost:8000", nil))
 
-	// var list = [][]string{
-	// {"Go", "Delilah", "From the Roots Up", "2012", "3m38s"},
-	// {"Go", "Moby", "Moby", "1992", "3m37s"},
-	// {"Go Ahead", "Alicia Keys", "As I Am", "2007", "4m36s"},
-	// {"Ready 2 Go", "Martin Solveig", "Smash", "2011", "4m24s"},
-	// {"Go", "Def Leppard", "Def Leppard", "2008", "5m03s"},
-	// {"Go", "Def Leppard", "Def Leppard", "2012", "5m03s"},
-	// {"Go", "Def Leppard", "Leppard Def", "2011", "5m03s"},
-	// }
+	// test()
+}
 
-	// tracks := new(s.TrackListS)
+func test() {
+	var list = [][]string{
+		{"Go", "Delilah", "From the Roots Up", "2012", "3m38s"},
+		{"Go", "Moby", "Moby", "1992", "3m37s"},
+		{"Go Ahead", "Alicia Keys", "As I Am", "2007", "4m36s"},
+		{"Ready 2 Go", "Martin Solveig", "Smash", "2011", "4m24s"},
+		{"Go", "Def Leppard", "Def Leppard", "2008", "5m03s"},
+		{"Go", "Def Leppard", "Def Leppard", "2012", "5m03s"},
+		{"Go", "Def Leppard", "Leppard Def", "2011", "5m03s"},
+	}
 
-	// tracks.Add(list)
+	tracks := new(s.TrackListS)
 
-	// tracks.SortS("title")
-	// tracks.SortS("artist")
-	// tracks.SortS("year")
+	tracks.Add(list)
+
+	tracks.SortS([]string{"title"})
+	tracks.SortS([]string{"artist"})
+	tracks.SortS([]string{"album"})
+
+	s.PrintTracks(&tracks.List)
 }

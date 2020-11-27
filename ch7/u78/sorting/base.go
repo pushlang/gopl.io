@@ -15,7 +15,7 @@ func parseLength(s string) time.Duration {
 	return d
 }
 
-func printTracks(tracks *TrackList) {
+func PrintTracks(tracks *TrackList) {
 	const format = "%v\t%v\t%v\t%v\t%v\t\n"
 	tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
 	fmt.Fprintf(tw, format, "Title", "Artist", "Album", "Year", "Length")

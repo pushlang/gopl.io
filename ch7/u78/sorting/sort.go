@@ -1,6 +1,7 @@
 package sorting
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
 	"time"
@@ -49,7 +50,7 @@ func (t *TrackList) Sort(sortby []string) {
 		sb = append(sb, by)
 	}
 	sort.Sort(custom{t, less, sb})
-	printTracks(t)
+	//printTracks(t)
 }
 func sortByMultiple(x, y *Track, sortby []string) bool {
 	for _, by := range sortby {
@@ -116,6 +117,7 @@ func (t *TrackListS) SortS(sortby []string) {
 	}
 
 	t.FormValues = sortby
+	fmt.Println("t.FormValues", t.FormValues)
 
 	if len(sortby) == 3 {
 		t.FormValues = nil
@@ -124,6 +126,4 @@ func (t *TrackListS) SortS(sortby []string) {
 	t.Sortedby = sortby
 
 	sort.Sort(custom{&t.List, sortByMultiple, t.Sortedby})
-
-	//printTracks(&t.List)
 }
