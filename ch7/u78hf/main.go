@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+"fmt"
+"io"
+)
 
 type HandlerFunc func(int)
 
@@ -41,20 +44,25 @@ func main() {
 	//var h = &handler{}
 	//Handle(2, h)
 
-	var hf = &handlerfunc{}
+	//var hf = &handlerfunc{}
 
-	Handle(1, HandlerFunc(hf.foo1))
-	Handle(2, HandlerFunc(hf.foo2))
+	//Handle(1, HandlerFunc(hf.foo1))
+	//Handle(2, HandlerFunc(hf.foo2))
+	
+	buf := make([]byte, 8)
+	var rf = &readfrom{}
+	ReadHandle(buf, ReaderFunc(rf.stdin))
+	fmt.Println(buf)
 }
 
-type ReaderFunc(p []byte) (n int, err error)
+type ReaderFunc func(p []byte) (n int, err error)
 
-func (f ReaderFunc) ReadSomthing(p []byte) (n int, err error) {
+func (f ReaderFunc) Read(p []byte) (n int, err error) {
 	return f(p)
 }
 
-func ReadHandle(p []byte) (n int, err error) {
-	h.ReadSomthing(n)
+func ReadHandle(p []byte, r io.Reader) {
+	r.Read(p)
 }
 
 type readfrom struct {
@@ -62,11 +70,11 @@ type readfrom struct {
 }
 
 func (s *readfrom) stdin(p []byte) (n int, err error) {
-	s.i += n
-	fmt.Println("handlerfunc -> foo1", n)
+    copy(p, []byte("stdin"))
+    return len(p), nil
 }
 
 func (s *readfrom) strng(p []byte) (n int, err error) {
-	s.s=string(p)
-	return len(
+    copy(p, []byte(s.s))
+    return len(p), nil
 }
