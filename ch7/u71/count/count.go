@@ -7,6 +7,7 @@ import (
 	"io"
 )
 
+// AllCountWriters
 type allCountWriters []*countWriter
 
 func (cws *allCountWriters) Write(p []byte) (int, error) {
@@ -20,8 +21,8 @@ func (cws *allCountWriters) Write(p []byte) (int, error) {
 
 	return n, err
 }
-
 func (cws *allCountWriters) Add(cw ...*countWriter) { *cws = append(*cws, cw...) }
+
 func (cws *allCountWriters) String() string {
 	var b bytes.Buffer
 	b.WriteByte('[')
@@ -38,43 +39,42 @@ func (cws *allCountWriters) String() string {
 	return b.String()
 }
 
+// CountWriter
+type CountWriter interface {
+	io.Writer
+	Counter
+}
+type countWriter struct {
+	r io.Reader
+	w io.Writer
+	Counter
+}
+func (cw *countWriter) Write(p []byte) (int, error) {
+	cw.w.Write(p)
+	return cw.Counter.Count(cw.r)
+}
+
+// Counters
 type Counter interface {
 	Count(io.Reader) (int, error)
 	Increment()
 	Value() int
 	String() string
 }
-
 type byteCounter struct {
 	c int
 	s bufio.SplitFunc
 }
-
 type wordCounter struct {
 	c int
 	s bufio.SplitFunc
 }
-
 type lineCounter struct {
 	c int
 	s bufio.SplitFunc
 }
 
-type CountWriter interface {
-	io.Writer
-	Counter
-}
-
-type countWriter struct {
-	r io.Reader
-	w io.Writer
-	Counter
-}
-
-func (cw *countWriter) Write(p []byte) (int, error) {
-	cw.w.Write(p)
-	return cw.Counter.Count(cw.r)
-}
+// Counters interface implementations
 func (c *byteCounter) Count(r io.Reader) (int, error) {
 	return count(c, r, c.s)
 }
@@ -115,6 +115,7 @@ func count(c Counter, r io.Reader, s bufio.SplitFunc) (int, error) {
 	return c.Value(), scanner.Err()
 }
 
+// Counters, CounterWriter, allCountWriters constructors
 func NewByteCounter() Counter {
 	return &byteCounter{0, bufio.ScanBytes}
 }
