@@ -1,8 +1,10 @@
 package main
 
 import (
-"fmt"
-"io"
+	"bufio"
+	"fmt"
+	"io"
+	"os"
 )
 
 type HandlerFunc func(int)
@@ -29,7 +31,7 @@ func (s *handlerfunc) foo1(n int) {
 }
 
 func (s *handlerfunc) foo2(n int) {
-	s.i*=n
+	s.i *= n
 	fmt.Println("handlerfunc -> foo2", n)
 }
 
@@ -43,16 +45,14 @@ func (h *handler) ServeHTTP(n int) {
 func main() {
 	//var h = &handler{}
 	//Handle(2, h)
-
 	//var hf = &handlerfunc{}
-
 	//Handle(1, HandlerFunc(hf.foo1))
 	//Handle(2, HandlerFunc(hf.foo2))
-	
+
 	buf := make([]byte, 8)
 	var rf = &readfrom{}
-	ReadHandle(buf, ReaderFunc(rf.stdin))
-	fmt.Println(buf)
+	ReadHandle(buf, ReaderFunc(rf.file))
+	fmt.Println(string(buf))
 }
 
 type ReaderFunc func(p []byte) (n int, err error)
@@ -60,21 +60,32 @@ type ReaderFunc func(p []byte) (n int, err error)
 func (f ReaderFunc) Read(p []byte) (n int, err error) {
 	return f(p)
 }
-
 func ReadHandle(p []byte, r io.Reader) {
 	r.Read(p)
 }
 
 type readfrom struct {
-	s string
 }
 
 func (s *readfrom) stdin(p []byte) (n int, err error) {
-    copy(p, []byte("stdin"))
-    return len(p), nil
+	return read(p, os.Stdin)
 }
 
-func (s *readfrom) strng(p []byte) (n int, err error) {
-    copy(p, []byte(s.s))
-    return len(p), nil
+func (s *readfrom) file(p []byte) (n int, err error) {
+	f, err := os.Create("test.txt")
+	w := bufio.NewWriter(f)
+	w.WriteString("test str")
+	//fmt.Fprint(f, "test str")
+	f.Sync()
+	w.Flush()
+	//f, err = os.Open("test.txt")
+	if err != nil {
+		panic(err)
+	}
+	return read(p, f)
+}
+func read(p []byte, r io.Reader) (int, error) {
+	defer r.(*os.File).Close()
+	fmt.Printf("read: %s", string(p))
+	return io.ReadFull(r, p)
 }
