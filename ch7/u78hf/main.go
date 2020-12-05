@@ -82,10 +82,10 @@ func (s *readfrom) file(p []byte) (n int, err error) {
 	if err != nil {
 		panic(err)
 	}
+	f.ReadAt(p, 0)
 	return read(p, f)
 }
 func read(p []byte, r io.Reader) (int, error) {
 	defer r.(*os.File).Close()
-	fmt.Printf("read: %s", string(p))
 	return io.ReadFull(r, p)
 }
