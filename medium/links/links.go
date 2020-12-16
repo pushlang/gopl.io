@@ -15,6 +15,7 @@ type Extractor interface {
 }
 
 func extract(doc *html.Node) ([]string, error) {
+	var isIn map[string]bool
 	var links []string
 	visitNode := func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "a" {
@@ -26,7 +27,11 @@ func extract(doc *html.Node) ([]string, error) {
 				if err != nil {
 					continue // ignore bad URLs
 				}
-				links = append(links, link.String())
+				l := link.Scheme + "://" + link.Host + link.Path
+				if !isIn[l] {
+					isIn[l] = true
+					links = append(links, l)
+				}
 			}
 		}
 	}

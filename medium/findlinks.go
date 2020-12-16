@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"gopl.io/medium/links"
@@ -10,7 +9,7 @@ import (
 
 func breadthFirst(f func(item string) []string, wl links.Extractor) {
 	worklist, _ := wl.Extract()
-	seen := make(map[string]bool)
+	/*seen := make(map[string]bool)
 
 	for len(worklist) > 0 {
 		items := worklist
@@ -21,16 +20,20 @@ func breadthFirst(f func(item string) []string, wl links.Extractor) {
 				worklist = append(worklist, f(item)...)
 			}
 		}
+	}*/
+	for _, w := range worklist {
+		fmt.Println(w)
 	}
 }
 
 func crawl(url string) []string {
 	fmt.Println(url)
-	list, err := links.Extract(url)
+	/*list, err := links.Extract(url)
 	if err != nil {
 		log.Print(err)
-	}
-	return list
+	}*/
+	return nil
+	//return list
 }
 
 func main() {
