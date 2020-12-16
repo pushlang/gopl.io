@@ -2,10 +2,17 @@ package links
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"net/url"
+	"os"
 
 	"golang.org/x/net/html"
 )
+
+type Extractor interface {
+	Extract() ([]string, error)
+}
 
 func extract(doc *html.Node) ([]string, error) {
 	var links []string
@@ -15,7 +22,7 @@ func extract(doc *html.Node) ([]string, error) {
 				if a.Key != "href" {
 					continue
 				}
-				link, err := resp.Request.URL.Parse(a.Val)
+				link, err := url.Parse(a.Val)
 				if err != nil {
 					continue // ignore bad URLs
 				}
@@ -29,15 +36,15 @@ func extract(doc *html.Node) ([]string, error) {
 
 type FileName string
 
-func (f FileName) getHtml() ([]string, error) {
-	fd, err := os.Open(f)
+func (f FileName) Extract() ([]string, error) {
+	fd, err := os.Open(string(f))
 	if err != nil {
 		log.Println(err)
 	}
 	doc, err := html.Parse(fd)
 
 	if err != nil {
-		return nil, fmt.Errorf("parsing %s as HTML: %v", url, err)
+		return nil, fmt.Errorf("parsing as HTML: %v", err)
 	}
 
 	return extract(doc)
@@ -45,20 +52,20 @@ func (f FileName) getHtml() ([]string, error) {
 
 type Url string
 
-func (u Url) getHtml() ([]string, error) {
-	resp, err := http.Get(u)
+func (u Url) Extract() ([]string, error) {
+	resp, err := http.Get(string(u))
 	if err != nil {
 		return nil, err
 	}
 	if resp.StatusCode != http.StatusOK {
 		resp.Body.Close()
-		return nil, fmt.Errorf("getting %s: %s", url, resp.Status)
+		return nil, fmt.Errorf("getting: %s", resp.Status)
 	}
 
 	doc, err := html.Parse(resp.Body)
 	resp.Body.Close()
 	if err != nil {
-		return nil, fmt.Errorf("parsing %s as HTML: %v", url, err)
+		return nil, fmt.Errorf("parsing as HTML: %v", err)
 	}
 	return extract(doc)
 }

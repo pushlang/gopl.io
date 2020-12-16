@@ -8,8 +8,10 @@ import (
 	"gopl.io/medium/links"
 )
 
-func breadthFirst(f func(item string) []string, worklist []string) {
+func breadthFirst(f func(item string) []string, wl links.Extractor) {
+	worklist, _ := wl.Extract()
 	seen := make(map[string]bool)
+
 	for len(worklist) > 0 {
 		items := worklist
 		worklist = nil
@@ -32,5 +34,6 @@ func crawl(url string) []string {
 }
 
 func main() {
-	breadthFirst(crawl, os.Args[1:])
+	fn := links.FileName(os.Args[1])
+	breadthFirst(crawl, fn)
 }
