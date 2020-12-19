@@ -15,7 +15,7 @@ type Extractor interface {
 }
 
 func extract(doc *html.Node) ([]string, error) {
-	var isIn map[string]bool
+	var isIn = make(map[string]bool)
 	var links []string
 	visitNode := func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "a" {
