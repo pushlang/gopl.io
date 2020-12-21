@@ -6,9 +6,11 @@ import (
 	"net/http"
 )
 
-func Run() {
+func Run(done chan struct{}) {
+	fmt.Println("Run")
 	http.HandleFunc("/", handler)
-	go log.Fatal(http.ListenAndServe("localhost:8000", nil))
+	log.Fatal(http.ListenAndServe("localhost:8000", nil))
+	done <- struct{}{}
 }
 
 var links = map[string][]string{
@@ -26,7 +28,8 @@ var links = map[string][]string{
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	log.Println("path:", r.URL.Path)
-	for l := range links[r.URL.Path] {
-		fmt.Fprintf(w, "%s", string(l))
+
+	for _, link := range links[r.URL.Path] {
+		fmt.Fprintf(w, "<a href=%s>%s</a><br>", link, link)
 	}
 }
