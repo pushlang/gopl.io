@@ -1,0 +1,2 @@
+goimports -w *.go links/*.go testsrv/*.go
+go build;./med web http://www.yandex.ru:80
