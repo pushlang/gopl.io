@@ -6,11 +6,10 @@ import (
 	"net/http"
 )
 
-func Run(done chan struct{}) {
+func Run() {
 	fmt.Println("Run")
 	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe("localhost:8000", nil))
-	done <- struct{}{}
 }
 
 var links = map[string][]string{

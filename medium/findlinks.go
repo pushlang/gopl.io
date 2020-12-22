@@ -21,26 +21,31 @@ func findLinks(wl links.Extractor) {
 
 func main() {
 	done := make(chan struct{})
-	go t.Run(done)
 	var ex links.Extractor
-	fmt.Println("testsrv")
 	ex = links.FileName(os.Args[1])
 
 	if os.Args[1] == "web" {
 		fmt.Println("web")
 		ex = links.Url(os.Args[2])
 	}
-	time.Sleep(3000 * time.Millisecond)
 
-	resp, err := http.Get("http://127.0.0.1:8000/")
-	for err != nil {
-		time.Sleep(250 * time.Millisecond)
-		log.Printf("error:%s\n", err)
-		resp, err := http.Get("http://127.0.0.1:8000/")
-	}
+	go func() {
+		req, err := http.NewRequest("GET", "http://127.0.0.1:8000/", nil)
 
-	fmt.Printf("status:%s\n", resp.StatusCode)
+		if err != nil {
+			log.Fatal(err)
+		}
+		resp, err := http.DefaultClient.Do(req)
 
-	findLinks(ex)
-	<-done
+		for err != nil {
+			time.Sleep(250 * time.Millisecond)
+			log.Printf("error:%s\n", err)
+			resp, err = http.DefaultClient.Do(req)
+		}
+		fmt.Printf("status code:%d\n", resp.StatusCode)
+
+		findLinks(ex)
+	}()
+
+	t.Run()
 }
