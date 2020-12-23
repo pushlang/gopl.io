@@ -6,10 +6,13 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"golang.org/x/net/html"
 )
+
+var signature = []string{"h4", "div", "h4", "div", "div", "a"}
 
 type Extractor interface {
 	Extract() ([]string, error)
@@ -18,20 +21,29 @@ type Extractor interface {
 func extract(doc *html.Node) ([]string, error) {
 	var isIn = make(map[string]bool)
 	var links []string
+	var history = make([]string, 0)
+
 	visitNode := func(n *html.Node) {
+		if n.Type == html.ElementNode {
+			history = append(history, "\""+n.Data+"\"")
+		}
+
 		if n.Type == html.ElementNode && n.Data == "a" {
-			for _, a := range n.Attr {
-				if a.Key != "href" {
-					continue
-				}
-				_, err := url.Parse(a.Val)
-				if err != nil {
-					continue // ignore bad URLs
-				}
-				//l := ul.Scheme + "://" + ul.Host + ul.Path
-				if !isIn[a.Val] {
-					isIn[a.Val] = true
-					links = append(links, a.Val)
+			if signature == history {
+				for _, a := range n.Attr {
+					if a.Key != "href" {
+						continue
+					}
+					_, err := url.Parse(a.Val)
+					if err != nil {
+						continue // ignore bad URLs
+					}
+					log.Println(strings.Join(history, ","))
+					history = nil
+					if !isIn[a.Val] {
+						isIn[a.Val] = true
+						links = append(links, a.Val)
+					}
 				}
 			}
 		}

@@ -22,7 +22,7 @@ func findLinks(wl links.Extractor, done chan struct{}) {
 func main() {
 	done := make(chan struct{})
 	if len(os.Args) == 1 {
-		log.Fatal("no arguments")
+		log.Fatal("No arguments")
 	}
 
 	var ex links.Extractor
@@ -31,7 +31,7 @@ func main() {
 		log.Println("Web extractor")
 		if len(os.Args) <= 2 {
 			ex = links.Url("http://127.0.0.1:8000")
-			log.Println("using default http://127.0.0.1:8000")
+			log.Println("Using default http://127.0.0.1:8000")
 		} else {
 			ex = links.Url(os.Args[2])
 			log.Println("using " + os.Args[2])
@@ -45,7 +45,6 @@ func main() {
 	go findLinks(ex, done)
 
 	if os.Args[1] == "web" && len(os.Args) <= 2 {
-		log.Println("iffffffff")
 		testsrv.Run()
 	}
 	<-done
