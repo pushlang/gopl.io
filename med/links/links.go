@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 	"time"
 
 	"golang.org/x/net/html"
@@ -20,16 +19,40 @@ type Extractor interface {
 
 func extract(doc *html.Node) ([]string, error) {
 	var isIn = make(map[string]bool)
+	/*type link struct {
+		href string
+		text string
+	}
+	var links []link*/
 	var links []string
-	var history = make([]string, 0)
+
+	sl := len(signature)
+	var history = make([]string, 0, sl)
+	hl := 0
 
 	visitNode := func(n *html.Node) {
-		if n.Type == html.ElementNode {
-			history = append(history, "\""+n.Data+"\"")
+		hl = len(history)
+
+		fc := n.FirstChild
+
+		if n.Type == html.ElementNode && fc != nil && fc.Type == html.TextNode && len(fc.Data) > 5 {
+			if hl == 0 {
+				if n.Data == signature[0] {
+					fmt.Println("text:", fc.Data)
+					history = append(history, n.Data)
+				}
+			} else {
+				if hl <= sl && history[hl-1] == signature[hl-1] {
+					fmt.Println("text:", fc.Data)
+					history = append(history, n.Data)
+				} else {
+					history = nil
+				}
+			}
 		}
 
 		if n.Type == html.ElementNode && n.Data == "a" {
-			if signature == history {
+			if len(signature) == len(history) {
 				for _, a := range n.Attr {
 					if a.Key != "href" {
 						continue
@@ -38,10 +61,12 @@ func extract(doc *html.Node) ([]string, error) {
 					if err != nil {
 						continue // ignore bad URLs
 					}
-					log.Println(strings.Join(history, ","))
+					//log.Println(strings.Join(history, ","))
 					history = nil
 					if !isIn[a.Val] {
 						isIn[a.Val] = true
+
+						fmt.Println("link:", a.Val)
 						links = append(links, a.Val)
 					}
 				}
