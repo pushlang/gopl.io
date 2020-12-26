@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"golang.org/x/net/html"
@@ -18,7 +18,9 @@ type Extractor interface {
 }
 
 func extract(doc *html.Node) ([]string, error) {
-	var isIn = make(map[string]bool)
+
+	var signCount = make(map[string]int)
+	//var isIn = make(map[string]bool)
 	/*type link struct {
 		href string
 		text string
@@ -33,47 +35,57 @@ func extract(doc *html.Node) ([]string, error) {
 	visitNode := func(n *html.Node) {
 		hl = len(history)
 
-		fc := n.FirstChild
+		if n.Type == html.ElementNode {
+			//if hl == 0 {
+			//	if n.Data == signature[0] {
+			history = append(history, n.Data)
+			/*		hl++
+						}
+					} else {
+						if hl <= sl && history[hl-1] == signature[hl-1] {
+							history = append(history, n.Data)
+							hl++
+						} else {
+							history = nil
+							hl = 0
+						}
+					}*/
+			if n.Data == "a" {
+				fmt.Println("history:", strings.Join(history, " "))
+				signCount[history]++
+				history = nil
+				/*if sl == hl {
+					for _, a := range n.Attr {
+						if a.Key != "href" {
+							continue
+						}
+						if _, err := url.Parse(a.Val); err != nil {
+							continue // ignore bad URLs
+						}
+						if !isIn[a.Val] {
+							fc := n.FirstChild
+							if fc != nil && fc.Data == "div" { //&& fc.Type == html.TextNode { //&& len(fc.Data) > 5 {
+								if fc := fc.FirstChild; fc != nil && fc.Data == "h4" {
+									if fc := fc.FirstChild; fc != nil { //&& fc.Data == "h4" {
+										//fmt.Println("text:", fc.Data)
+									}
+								}
+							}
 
-		if n.Type == html.ElementNode && fc != nil && fc.Type == html.TextNode && len(fc.Data) > 5 {
-			if hl == 0 {
-				if n.Data == signature[0] {
-					fmt.Println("text:", fc.Data)
-					history = append(history, n.Data)
-				}
-			} else {
-				if hl <= sl && history[hl-1] == signature[hl-1] {
-					fmt.Println("text:", fc.Data)
-					history = append(history, n.Data)
-				} else {
-					history = nil
-				}
-			}
-		}
-
-		if n.Type == html.ElementNode && n.Data == "a" {
-			if len(signature) == len(history) {
-				for _, a := range n.Attr {
-					if a.Key != "href" {
-						continue
+							isIn[a.Val] = true
+							//fmt.Println("link:", a.Val)
+							links = append(links, a.Val)
+						}
 					}
-					_, err := url.Parse(a.Val)
-					if err != nil {
-						continue // ignore bad URLs
-					}
-					//log.Println(strings.Join(history, ","))
-					history = nil
-					if !isIn[a.Val] {
-						isIn[a.Val] = true
-
-						fmt.Println("link:", a.Val)
-						links = append(links, a.Val)
-					}
-				}
+				}*/
 			}
 		}
 	}
+
 	forEachNode(doc, visitNode, nil)
+	for k, v := range signCount {
+		fmt.Printf("")
+	}
 	return links, nil
 }
 
