@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -11,16 +12,15 @@ import (
 	"golang.org/x/net/html"
 )
 
-var signature = []string{"h4", "div", "h4", "div", "div", "a"}
+var signature = []string{"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a"}
 
 type Extractor interface {
 	Extract() ([]string, error)
 }
 
 func extract(doc *html.Node) ([]string, error) {
-
 	var signCount = make(map[string]int)
-	//var isIn = make(map[string]bool)
+	var isIn = make(map[string]bool)
 	/*type link struct {
 		href string
 		text string
@@ -32,29 +32,36 @@ func extract(doc *html.Node) ([]string, error) {
 	var history = make([]string, 0, sl)
 	hl := 0
 
-	visitNode := func(n *html.Node) {
+	depth := 0
+	//linkfound := false
+
+	in := func(n *html.Node) {
+		if n.Type == html.ElementNode {
+			depth++
+		}
 		hl = len(history)
 
-		if n.Type == html.ElementNode {
-			//if hl == 0 {
-			//	if n.Data == signature[0] {
-			history = append(history, n.Data)
-			/*		hl++
-						}
-					} else {
-						if hl <= sl && history[hl-1] == signature[hl-1] {
-							history = append(history, n.Data)
-							hl++
-						} else {
-							history = nil
-							hl = 0
-						}
-					}*/
+		if n.Type == html.ElementNode { //&& !linkfound {
+			if hl == 0 {
+				if n.Data == signature[0] {
+					history = append(history, n.Data)
+					hl++
+				}
+			} else {
+				if hl <= sl && history[hl-1] == signature[hl-1] {
+					history = append(history, n.Data)
+					hl++
+				} /*else {
+					history = nil
+					hl = 0
+				}*/
+			}
 			if n.Data == "a" {
-				fmt.Println("history:", strings.Join(history, " "))
-				signCount[history]++
-				history = nil
-				/*if sl == hl {
+				//linkfound = true
+				//fmt.Println("history a:", strings.Join(history, " "))
+				signCount[strings.Join(history, " ")]++
+				//history = nil
+				if sl == hl {
 					for _, a := range n.Attr {
 						if a.Key != "href" {
 							continue
@@ -77,16 +84,74 @@ func extract(doc *html.Node) ([]string, error) {
 							links = append(links, a.Val)
 						}
 					}
-				}*/
+				}
 			}
 		}
 	}
-
-	forEachNode(doc, visitNode, nil)
-	for k, v := range signCount {
-		fmt.Printf("")
+	out := func(n *html.Node) {
+		if n.Type == html.ElementNode { //&& !linkfound {
+			depth--
+			history = history[:len(history)-1]
+			//if depth == 0 && linkfound {
+			//	linkfound = false
+			//}
+		}
 	}
+
+	_ = func(n *html.Node) { // count signatures in
+		if n.Type == html.ElementNode {
+			depth++
+		}
+		hl = len(history)
+
+		if n.Type == html.ElementNode {
+			history = append(history, "\""+n.Data+"\"")
+			if n.Data == "a" {
+				signCount[strings.Join(history, ", ")]++
+			}
+		}
+	}
+	_ = func(n *html.Node) { // count signatures out
+		if n.Type == html.ElementNode {
+			depth--
+			history = history[:len(history)-1]
+			if depth == 0 && linkfound {
+				linkfound = false
+			}
+		}
+	}
+	_ = func(n *html.Node) { // prints html tree in
+		if n.Type == html.ElementNode {
+			fmt.Printf("%*s<%s>\n", depth*2, "", n.Data)
+			depth++
+		}
+	}
+	_ = func(n *html.Node) { // prints html tree out
+		if n.Type == html.ElementNode {
+			depth--
+			fmt.Printf("%*s</%s>\n", depth*2, "", n.Data)
+		}
+	}
+
+	forEachNode(doc, in, out)
+
+	for k, v := range signCount {
+		fmt.Printf("%s:%d\n", k, v)
+	}
+
 	return links, nil
+}
+
+func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
+	if pre != nil {
+		pre(n)
+	}
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		forEachNode(c, pre, post)
+	}
+	if post != nil {
+		post(n)
+	}
 }
 
 type FileName string
@@ -139,16 +204,4 @@ func (u Url) Extract() ([]string, error) {
 		return nil, fmt.Errorf("Parsing HTML: %v", err)
 	}
 	return extract(doc)
-}
-
-func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
-	if pre != nil {
-		pre(n)
-	}
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		forEachNode(c, pre, post)
-	}
-	if post != nil {
-		post(n)
-	}
 }
