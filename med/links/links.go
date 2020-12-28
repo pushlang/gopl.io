@@ -33,34 +33,15 @@ func extract(doc *html.Node) ([]string, error) {
 	hl := 0
 
 	depth := 0
-	//linkfound := false
 
 	in := func(n *html.Node) {
 		if n.Type == html.ElementNode {
-			depth++
-		}
-		hl = len(history)
-
-		if n.Type == html.ElementNode { //&& !linkfound {
-			if hl == 0 {
-				if n.Data == signature[0] {
-					history = append(history, n.Data)
-					hl++
-				}
-			} else {
-				if hl <= sl && history[hl-1] == signature[hl-1] {
-					history = append(history, n.Data)
-					hl++
-				} /*else {
-					history = nil
-					hl = 0
-				}*/
+			if hl < sl && n.Data == signature[hl] {
+				fmt.Print("+", n.Data, "=", signature[hl])
+				hl++
 			}
+
 			if n.Data == "a" {
-				//linkfound = true
-				//fmt.Println("history a:", strings.Join(history, " "))
-				signCount[strings.Join(history, " ")]++
-				//history = nil
 				if sl == hl {
 					for _, a := range n.Attr {
 						if a.Key != "href" {
@@ -74,13 +55,13 @@ func extract(doc *html.Node) ([]string, error) {
 							if fc != nil && fc.Data == "div" { //&& fc.Type == html.TextNode { //&& len(fc.Data) > 5 {
 								if fc := fc.FirstChild; fc != nil && fc.Data == "h4" {
 									if fc := fc.FirstChild; fc != nil { //&& fc.Data == "h4" {
-										//fmt.Println("text:", fc.Data)
+										fmt.Println("text:", fc.Data)
 									}
 								}
 							}
 
 							isIn[a.Val] = true
-							//fmt.Println("link:", a.Val)
+							fmt.Println("link:", a.Val)
 							links = append(links, a.Val)
 						}
 					}
@@ -89,22 +70,16 @@ func extract(doc *html.Node) ([]string, error) {
 		}
 	}
 	out := func(n *html.Node) {
-		if n.Type == html.ElementNode { //&& !linkfound {
-			depth--
-			history = history[:len(history)-1]
-			//if depth == 0 && linkfound {
-			//	linkfound = false
-			//}
+		if n.Type == html.ElementNode {
+			//hl--
 		}
 	}
 
 	_ = func(n *html.Node) { // count signatures in
-		if n.Type == html.ElementNode {
-			depth++
-		}
 		hl = len(history)
 
 		if n.Type == html.ElementNode {
+			depth++
 			history = append(history, "\""+n.Data+"\"")
 			if n.Data == "a" {
 				signCount[strings.Join(history, ", ")]++
@@ -115,9 +90,6 @@ func extract(doc *html.Node) ([]string, error) {
 		if n.Type == html.ElementNode {
 			depth--
 			history = history[:len(history)-1]
-			if depth == 0 && linkfound {
-				linkfound = false
-			}
 		}
 	}
 	_ = func(n *html.Node) { // prints html tree in
