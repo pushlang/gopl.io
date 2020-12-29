@@ -12,18 +12,20 @@ import (
 	"golang.org/x/net/html"
 )
 
-// link to text, text - "div","h2"
+//link to text, text - "div","h2"
 //var signature = []string{"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a"}
 
-// link to site, text - "h4"
-var signature = []string{"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a"}
+//link to author, text - "h4"
+//var signature = []string{"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a"}
+
+// link to site, text - div div h4
+var signature = []string{"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a"}
 
 /*"html", "body", "div", "div", "div", "div", "div", "div", "div", "ul", "li", "h4", "a":4
 "html", "body", "div", "div", "div", "div", "nav", "div", "div", "div", "div", "div", "div", "a":2
 "html", "body", "div", "div", "div", "div", "nav", "div", "div", "div", "div", "div", "div", "div", "div", "div", "span", "a":1
 "html", "body", "div", "div", "div", "div", "nav", "div", "div", "div", "div", "div", "div", "div", "a":1
 "html", "body", "div", "div", "div", "div", "nav", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a":1
-"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a":674
 "html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a":805*/
 
 type Extractor interface {
@@ -59,6 +61,16 @@ func extract(doc *html.Node) ([]string, error) {
 							continue // ignore bad URLs
 						}
 						if !isIn[a.Val] {
+
+							if fc := n.FirstChild; fc != nil && fc.Data == "div" {
+								if fc := n.FirstChild; fc != nil && fc.Data == "div" {
+									if fc := fc.FirstChild; fc != nil && fc.Data == "h4" {
+										if fc := fc.FirstChild; fc != nil {
+											fmt.Println("text:", fc.Data)
+										}
+									}
+								}
+							}
 
 							if fc := n.FirstChild; fc != nil && fc.Data == "div" {
 								if fc := n.FirstChild; fc != nil && fc.Data == "h2" {
