@@ -12,21 +12,15 @@ import (
 	"golang.org/x/net/html"
 )
 
-//link to text, text - "div","h2"
-//var signature = []string{"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a"}
+//link to article,link name - "div","h2"
+var signature = []string{"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a"}
 
-//link to author, text - "h4"
+//link to author, link name - "h4"
 //var signature = []string{"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a"}
-
-// link to site, text - div div h4
-var signature = []string{"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a"}
-
-/*"html", "body", "div", "div", "div", "div", "div", "div", "div", "ul", "li", "h4", "a":4
-"html", "body", "div", "div", "div", "div", "nav", "div", "div", "div", "div", "div", "div", "a":2
-"html", "body", "div", "div", "div", "div", "nav", "div", "div", "div", "div", "div", "div", "div", "div", "div", "span", "a":1
-"html", "body", "div", "div", "div", "div", "nav", "div", "div", "div", "div", "div", "div", "div", "a":1
-"html", "body", "div", "div", "div", "div", "nav", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a":1
-"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a":805*/
+//link to site, link name - "div", "div", "h4"
+//var signature = []string{"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a"}
+//link to image - "div", "div", "img"
+//var signature = []string{"html", "body", "div", "div", "div", "div", "div", "div", "div", "div", "div", "div", "a"}
 
 type Extractor interface {
 	Extract() ([]string, error)
@@ -61,7 +55,12 @@ func extract(doc *html.Node) ([]string, error) {
 							continue // ignore bad URLs
 						}
 						if !isIn[a.Val] {
-
+							if fc := n.FirstChild; fc != nil && fc.Data == "div" {
+								if fc := n.FirstChild; fc != nil && fc.Data == "div" {
+									if fc := fc.FirstChild; fc != nil && fc.Data == "img" {
+									}
+								}
+							}
 							if fc := n.FirstChild; fc != nil && fc.Data == "div" {
 								if fc := n.FirstChild; fc != nil && fc.Data == "div" {
 									if fc := fc.FirstChild; fc != nil && fc.Data == "h4" {
@@ -71,7 +70,6 @@ func extract(doc *html.Node) ([]string, error) {
 									}
 								}
 							}
-
 							if fc := n.FirstChild; fc != nil && fc.Data == "div" {
 								if fc := n.FirstChild; fc != nil && fc.Data == "h2" {
 									if fc := fc.FirstChild; fc != nil {
