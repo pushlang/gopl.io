@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -13,8 +14,7 @@ func findLinks(wl links.Extractor, done chan struct{}) {
 	worklist, _ := wl.Extract()
 
 	for _, w := range worklist {
-		w = w
-		//fmt.Println(w)
+		fmt.Println(w)
 	}
 	done <- struct{}{}
 }
