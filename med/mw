@@ -1,2 +1,3 @@
-goimports -w *.go links/*.go testsrv/*.go
-go build;./med web http://www.yandex.ru:80
+./m.o web https://golang.org:443/pkg/
+#./m.o web https://golang.org:80/pkg/ 1>m.out 2>m.log
+#./m.o web 

@@ -1,0 +1,14 @@
+2021/01/02 18:35:39 Web extractor
+2021/01/02 18:35:39 Using default http://127.0.0.1:8000
+2021/01/02 18:35:39 enter Run (test server)
+2021/01/02 18:35:39 enter findLinks
+2021/01/02 18:35:39 enter Url.Extract
+2021/01/02 18:35:39 Attempt to connect:http://127.0.0.1:8000
+2021/01/02 18:35:39 Attempt to connect:http://127.0.0.1:8000
+2021/01/02 18:35:39 Attempt to connect:http://127.0.0.1:8000
+2021/01/02 18:35:39 Request path: /
+2021/01/02 18:35:39 enter extract
+2021/01/02 18:35:39 enter countLinkSignatures
+2021/01/02 18:35:39 exit countLinkSignatures
+2021/01/02 18:35:39 exit extract
+2021/01/02 18:35:39 exit Url.Extract

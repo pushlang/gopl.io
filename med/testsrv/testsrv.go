@@ -7,7 +7,9 @@ import (
 )
 
 func Run() {
-	log.Println("Running test server")
+	log.Println("enter Run (test server)")
+	defer log.Println("exit Run (test server)")
+
 	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe("localhost:8000", nil))
 }
@@ -26,11 +28,11 @@ var links = map[string][]string{
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	log.Println("path:", r.URL.Path)
+	log.Println("Request path:", r.URL.Path)
 
 	host := "127.0.0.1:8000"
 
 	for _, link := range links[r.URL.Path] {
-		fmt.Fprintf(w, "<a href=http://%s%s>%s</a><br>", host, link, link)
+		fmt.Fprintf(w, "<a href=http://%s%s>%s</a><br>\n", host, link, link)
 	}
 }

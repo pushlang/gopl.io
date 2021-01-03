@@ -1,2 +1,2 @@
-goimports -w *.go links/*.go testsrv/*.go
-go build;./med file med.html
+#./m.o file med.html 1>m.html 2>m.log
+./m.o file med.html
